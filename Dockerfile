@@ -1,10 +1,10 @@
 FROM n8nio/n8n:latest
 
 ENV N8N_HOST=0.0.0.0
-ENV N8N_PORT=5678
 ENV N8N_PROTOCOL=https
 ENV GENERIC_TIMEZONE=America/Sao_Paulo
 
-EXPOSE 5678
+COPY start.sh /start.sh
+RUN chmod +x /start.sh
 
-CMD ["n8n", "start"]
+CMD ["/start.sh"]
