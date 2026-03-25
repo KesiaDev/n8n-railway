@@ -22,4 +22,4 @@ RUN echo '#!/bin/sh' > /startup.sh \
 
 USER node
 ENTRYPOINT ["/startup.sh"]
-CMD ["n8n"]
+CMD ["start"]
