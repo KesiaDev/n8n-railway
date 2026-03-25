@@ -5,12 +5,21 @@ ENV N8N_PORT=5678
 ENV N8N_PROTOCOL=https
 ENV GENERIC_TIMEZONE=America/Sao_Paulo
 
-# Postgres (Radar Comercial Railway project)
-ENV DB_TYPE=postgresdb
-ENV DB_POSTGRESDB_HOST=trolley.proxy.rlwy.net
-ENV DB_POSTGRESDB_PORT=43752
-ENV DB_POSTGRESDB_DATABASE=railway
-ENV DB_POSTGRESDB_USER=postgres
-ENV DB_POSTGRESDB_PASSWORD=lRlwlACgqRkNKoNWCdiSxtIlGRAAXUjg
-ENV DB_POSTGRESDB_SSL_ENABLED=true
-ENV DB_POSTGRESDB_SSL_REJECT_UNAUTHORIZED=false
+# Create startup script during Linux build (no CRLF issues)
+# Forces correct DB credentials regardless of Railway dashboard overrides
+USER root
+RUN printf '#!/bin/sh\n\
+export DB_TYPE=postgresdb\n\
+export DB_POSTGRESDB_HOST=trolley.proxy.rlwy.net\n\
+export DB_POSTGRESDB_PORT=43752\n\
+export DB_POSTGRESDB_DATABASE=railway\n\
+export DB_POSTGRESDB_USER=postgres\n\
+export DB_POSTGRESDB_PASSWORD=lRlwlACgqRkNKoNWCdiSxtIlGRAAXUjg\n\
+export DB_POSTGRESDB_SSL_ENABLED=true\n\
+export DB_POSTGRESDB_SSL_REJECT_UNAUTHORIZED=false\n\
+exec tini -- /docker-entrypoint.sh "$@"\n' > /startup.sh \
+    && chmod +x /startup.sh
+
+USER node
+ENTRYPOINT ["/startup.sh"]
+CMD ["n8n"]
